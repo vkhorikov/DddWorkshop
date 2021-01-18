@@ -136,7 +136,7 @@ namespace App
                 return BadRequest("Invalid customer id: " + id);
             }
 
-            if (customer.Status == CustomerStatus.Advanced && customer.StatusExpirationDate.IsExpired(DateTime.UtcNow) == false)
+            if (customer.Status.IsAdvanced(DateTime.UtcNow))
             {
                 return BadRequest("The customer already has the Advanced status");
             }

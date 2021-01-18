@@ -20,7 +20,7 @@ namespace Domain
                 LicensingModel.LifeLong => Dollars.Of(8),
                 _ => throw new ArgumentOutOfRangeException()
             };
-            if (status == CustomerStatus.Advanced && statusExpirationDate.IsExpired(DateTime.UtcNow) == false)
+            if (status.IsAdvanced(DateTime.UtcNow))
             {
                 price = price * 0.75m;
             }
@@ -46,8 +46,7 @@ namespace Domain
             if (customer.PurchasedMovies.Where(x => x.PurchaseDate > DateTime.UtcNow.AddYears(-1)).Sum(x => x.Price.Value) < 100m)
                 return false;
 
-            customer.Status = CustomerStatus.Advanced;
-            customer.StatusExpirationDate = ExpirationDate.Create(DateTime.UtcNow.AddYears(1)).Value;
+            customer.Status = customer.Status.Promote();
 
             return true;
         }
