@@ -20,7 +20,6 @@ namespace App
             services.AddControllers().AddNewtonsoftJson();
             services.AddTransient<MovieRepository>();
             services.AddTransient<CustomerRepository>();
-            services.AddTransient<CustomerService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

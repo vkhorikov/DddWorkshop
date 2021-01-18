@@ -13,16 +13,11 @@ namespace App
     {
         private readonly MovieRepository _movieRepository;
         private readonly CustomerRepository _customerRepository;
-        private readonly CustomerService _customerService;
 
-        public CustomerController(
-            MovieRepository movieRepository,
-            CustomerRepository customerRepository,
-            CustomerService customerService)
+        public CustomerController(MovieRepository movieRepository, CustomerRepository customerRepository)
         {
             _customerRepository = customerRepository;
             _movieRepository = movieRepository;
-            _customerService = customerService;
         }
 
         [HttpGet]
@@ -119,7 +114,7 @@ namespace App
                 return BadRequest("The movie is already purchased: " + movie.Name);
             }
 
-            _customerService.PurchaseMovie(customer, movie);
+            customer.PurchaseMovie(movie, DateTime.UtcNow);
 
             _customerRepository.Save(customer);
 
@@ -141,7 +136,7 @@ namespace App
                 return BadRequest("The customer already has the Advanced status");
             }
 
-            bool success = _customerService.PromoteCustomer(customer);
+            bool success = customer.Promote(DateTime.UtcNow);
             if (!success)
             {
                 return BadRequest("Cannot promote the customer");
