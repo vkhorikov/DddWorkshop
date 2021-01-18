@@ -12,7 +12,7 @@ namespace Domain
         public Dollars MoneySpent { get; set; }
 
         private readonly IList<PurchasedMovie> _purchasedMovies = new List<PurchasedMovie>();
-        public virtual IReadOnlyList<PurchasedMovie> PurchasedMovies => _purchasedMovies.ToList();
+        public IReadOnlyList<PurchasedMovie> PurchasedMovies => _purchasedMovies.ToList();
 
         public Customer(CustomerName name, Email email)
         {

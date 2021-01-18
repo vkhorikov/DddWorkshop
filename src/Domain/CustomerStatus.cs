@@ -26,8 +26,13 @@ namespace Domain
         {
             if (Type != CustomerStatusType.Advanced)
                 return false;
-            
+
             return ExpirationDate.IsExpired(now) == false;
+        }
+
+        public decimal GetDiscount(DateTime now)
+        {
+            return IsAdvanced(now) ? 0.25m : 0m;
         }
 
         public CustomerStatus Promote()
@@ -41,7 +46,6 @@ namespace Domain
             yield return ExpirationDate;
         }
     }
-
 
     public enum CustomerStatusType
     {

@@ -24,5 +24,23 @@ namespace Domain
 
             return result;
         }
+        
+        public Dollars CalculatePrice(CustomerStatus status, DateTime now)
+        {
+            decimal modifier = 1 - status.GetDiscount(now);
+            return GetBasePrice() * modifier;
+        }
+
+        private Dollars GetBasePrice()
+        {
+            Dollars result = LicensingModel switch
+            {
+                LicensingModel.TwoDays => Dollars.Of(4),
+                LicensingModel.LifeLong => Dollars.Of(8),
+                _ => throw new ArgumentOutOfRangeException()
+            };
+
+            return result;
+        }
     }
 }

@@ -5,26 +5,10 @@ namespace Domain
 {
     public class CustomerService
     {
-        private Dollars CalculatePrice(CustomerStatus status, LicensingModel licensingModel)
-        {
-            Dollars price = licensingModel switch
-            {
-                LicensingModel.TwoDays => Dollars.Of(4),
-                LicensingModel.LifeLong => Dollars.Of(8),
-                _ => throw new ArgumentOutOfRangeException()
-            };
-            if (status.IsAdvanced(DateTime.UtcNow))
-            {
-                price = price * 0.75m;
-            }
-
-            return price;
-        }
-
         public void PurchaseMovie(Customer customer, Movie movie)
         {
             ExpirationDate expirationDate = movie.GetExpirationDate();
-            Dollars price = CalculatePrice(customer.Status, movie.LicensingModel);
+            Dollars price = movie.CalculatePrice(customer.Status, DateTime.UtcNow);
             customer.PurchaseMovie(movie, expirationDate, price, DateTime.UtcNow);
         }
 

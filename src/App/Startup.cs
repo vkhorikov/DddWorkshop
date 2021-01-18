@@ -20,7 +20,6 @@ namespace App
             services.AddControllers().AddNewtonsoftJson();
             services.AddTransient<MovieRepository>();
             services.AddTransient<CustomerRepository>();
-            services.AddTransient<MovieService>();
             services.AddTransient<CustomerService>();
         }
 
