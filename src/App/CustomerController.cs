@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using App.DataContracts;
 using CSharpFunctionalExtensions;
 using Domain;
@@ -9,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace App
 {
     [Route("api/customers")]
-    public class CustomerController : Controller
+    public class CustomerController : BaseController
     {
         private readonly MovieRepository _movieRepository;
         private readonly CustomerRepository _customerRepository;
@@ -26,7 +25,7 @@ namespace App
         {
             Customer customer = _customerRepository.GetById(id);
             if (customer == null)
-                return BadRequest("Invalid customer id: " + id);
+                return Error("Invalid customer id: " + id);
 
             var dto = new GetCustomerResponse
             {
@@ -34,7 +33,7 @@ namespace App
                 Name = customer.Name.Value,
                 Email = customer.Email.Value,
                 MoneySpent = customer.MoneySpent.Value,
-                Status = customer.Status.ToString(),
+                Status = customer.Status.Type.ToString(),
                 StatusExpirationDate = customer.Status.ExpirationDate.Date,
                 PurchasedMovies = customer.PurchasedMovies.Select(x => new PurchasedMovieDto
                 {
@@ -49,7 +48,7 @@ namespace App
                 }).ToList()
             };
 
-            return Json(dto);
+            return Ok(dto);
         }
 
         [HttpPost]
@@ -60,12 +59,10 @@ namespace App
 
             Result result = Result.Combine(customerName, email);
             if (result.IsFailure)
-                return BadRequest(result.Error);
+                return Error(result.Error);
 
             if (_customerRepository.GetByEmail(email.Value) != null)
-            {
-                return BadRequest("Email is already in use: " + request.Email);
-            }
+                return Error("Email is already in use: " + request.Email);
 
             var customer = new Customer(customerName.Value, email.Value);
             _customerRepository.Save(customer);
@@ -79,13 +76,11 @@ namespace App
         {
             Customer customer = _customerRepository.GetById(id);
             if (customer == null)
-            {
-                return BadRequest("Invalid customer id: " + id);
-            }
+                return Error("Invalid customer id: " + id);
 
             Result<CustomerName> customerName = CustomerName.Create(request.Name);
             if (customerName.IsFailure)
-                return BadRequest(customerName.Error);
+                return Error(customerName.Error);
 
             customer.Name = customerName.Value;
             _customerRepository.Save(customer);
@@ -99,20 +94,14 @@ namespace App
         {
             Movie movie = _movieRepository.GetById(movieId);
             if (movie == null)
-            {
-                return BadRequest("Invalid movie id: " + movieId);
-            }
+                return Error("Invalid movie id: " + movieId);
 
             Customer customer = _customerRepository.GetById(id);
             if (customer == null)
-            {
-                return BadRequest("Invalid customer id: " + id);
-            }
+                return Error("Invalid customer id: " + id);
 
             if (customer.PurchasedMovies.Any(x => x.MovieId == movie.Id && x.ExpirationDate.IsExpired(DateTime.UtcNow) == false))
-            {
-                return BadRequest("The movie is already purchased: " + movie.Name);
-            }
+                return Error("The movie is already purchased: " + movie.Name);
 
             customer.PurchaseMovie(movie, DateTime.UtcNow);
 
@@ -127,20 +116,14 @@ namespace App
         {
             Customer customer = _customerRepository.GetById(id);
             if (customer == null)
-            {
-                return BadRequest("Invalid customer id: " + id);
-            }
+                return Error("Invalid customer id: " + id);
 
             if (customer.Status.IsAdvanced(DateTime.UtcNow))
-            {
-                return BadRequest("The customer already has the Advanced status");
-            }
+                return Error("The customer already has the Advanced status");
 
             bool success = customer.Promote(DateTime.UtcNow);
             if (!success)
-            {
-                return BadRequest("Cannot promote the customer");
-            }
+                return Error("Cannot promote the customer");
 
             _customerRepository.Save(customer);
 
