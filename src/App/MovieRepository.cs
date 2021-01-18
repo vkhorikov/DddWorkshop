@@ -7,17 +7,13 @@ namespace App
     {
         private static readonly Movie[] _allMovies =
         {
-            new Movie
+            new Movie("Great Gatsby", LicensingModel.TwoDays)
             {
-                Id = 1,
-                Name = "Great Gatsby",
-                LicensingModel = LicensingModel.TwoDays
+                Id = 1
             },
-            new Movie
+            new Movie("Secret Life of Pets", LicensingModel.LifeLong)
             {
-                Id = 2,
-                Name = "Secret Life of Pets",
-                LicensingModel = LicensingModel.LifeLong
+                Id = 2
             }
         };
 
