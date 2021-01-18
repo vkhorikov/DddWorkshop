@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Domain
@@ -42,8 +43,7 @@ namespace Domain
                 Price = price
             };
 
-            customer.PurchasedMovies.Add(purchasedMovie);
-            customer.MoneySpent += price;
+            customer.PurchaseMovie(purchasedMovie);
         }
 
         public bool PromoteCustomer(Customer customer)

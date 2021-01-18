@@ -72,14 +72,7 @@ namespace App
                 return BadRequest("Email is already in use: " + request.Email);
             }
 
-            var customer = new Customer
-            {
-                Name = customerName.Value,
-                Email = email.Value,
-                MoneySpent = Dollars.Of(0),
-                Status = CustomerStatus.Regular,
-                StatusExpirationDate = null
-            };
+            var customer = new Customer(customerName.Value, email.Value);
             _customerRepository.Save(customer);
 
             return Ok();

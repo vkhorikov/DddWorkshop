@@ -7,12 +7,8 @@ namespace App
 {
     public class CustomerRepository
     {
-        private static readonly List<Customer> _customers = new List<Customer>
-        {
-            Alice(),
-            Bob()
-        };
-        private static long _lastId = _customers.Max(x => x.Id);
+        private static readonly List<Customer> _customers = new List<Customer>();
+        private static long _lastId;
 
         public IReadOnlyList<Customer> GetList()
         {
@@ -40,11 +36,6 @@ namespace App
                 SetId(customer, _lastId);
             }
 
-            if (customer.PurchasedMovies == null)
-            {
-                customer.PurchasedMovies = new List<PurchasedMovie>();
-            }
-
             // Saving to the database
             _customers.RemoveAll(x => x.Id == customer.Id);
             _customers.Add(customer);
@@ -54,48 +45,6 @@ namespace App
         {
             // The use of reflection to set up the Id emulates the ORM behavior
             entity.GetType().GetProperty(nameof(Entity.Id)).SetValue(entity, id);
-        }
-
-        private static Customer Alice()
-        {
-            var alice = new Customer
-            {
-                Id = 1,
-                Email = Email.Create("alice@gmail.com").Value,
-                MoneySpent = Dollars.Of(4),
-                Name = CustomerName.Create("Alice Alison").Value,
-                PurchasedMovies = new List<PurchasedMovie>
-                {
-                    new PurchasedMovie
-                    {
-                        CustomerId = 1,
-                        ExpirationDate = ExpirationDate.Create(DateTime.UtcNow.AddDays(2)).Value,
-                        MovieId = 1,
-                        Price = Dollars.Of(4),
-                        PurchaseDate = DateTime.Now
-                    }
-                },
-                Status = CustomerStatus.Regular,
-                StatusExpirationDate = null
-            };
-
-            return alice;
-        }
-
-        private static Customer Bob()
-        {
-            var bob = new Customer
-            {
-                Id = 2,
-                Email = Email.Create("bob@gmail.com").Value,
-                MoneySpent = Dollars.Of(0),
-                Name = CustomerName.Create("Bob Bobson").Value,
-                PurchasedMovies = new List<PurchasedMovie>(),
-                Status = CustomerStatus.Regular,
-                StatusExpirationDate = null
-            };
-
-            return bob;
         }
     }
 }
