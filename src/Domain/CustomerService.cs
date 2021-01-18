@@ -12,7 +12,7 @@ namespace Domain
             _movieService = movieService;
         }
 
-        private Dollars CalculatePrice(CustomerStatus status, ExpirationDate statusExpirationDate, LicensingModel licensingModel)
+        private Dollars CalculatePrice(CustomerStatus status, LicensingModel licensingModel)
         {
             Dollars price = licensingModel switch
             {
@@ -31,7 +31,7 @@ namespace Domain
         public void PurchaseMovie(Customer customer, Movie movie)
         {
             ExpirationDate expirationDate = _movieService.GetExpirationDate(movie.LicensingModel);
-            Dollars price = CalculatePrice(customer.Status, customer.StatusExpirationDate, movie.LicensingModel);
+            Dollars price = CalculatePrice(customer.Status, movie.LicensingModel);
             customer.PurchaseMovie(movie, expirationDate, price, DateTime.UtcNow);
         }
 

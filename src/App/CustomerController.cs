@@ -40,7 +40,7 @@ namespace App
                 Email = customer.Email.Value,
                 MoneySpent = customer.MoneySpent.Value,
                 Status = customer.Status.ToString(),
-                StatusExpirationDate = customer.StatusExpirationDate.Date,
+                StatusExpirationDate = customer.Status.ExpirationDate.Date,
                 PurchasedMovies = customer.PurchasedMovies.Select(x => new PurchasedMovieDto
                 {
                     Price = x.Price.Value,
