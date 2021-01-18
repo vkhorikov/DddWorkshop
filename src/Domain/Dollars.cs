@@ -9,6 +9,8 @@ namespace Domain
 
         public decimal Value { get; }
 
+        public bool IsZero => Value == 0;
+
         private Dollars(decimal value)
         {
             Value = value;

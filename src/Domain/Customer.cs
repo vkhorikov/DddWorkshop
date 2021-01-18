@@ -27,16 +27,9 @@ namespace Domain
             ExpirationDate expirationDate = movie.GetExpirationDate();
             Dollars price = movie.CalculatePrice(Status, DateTime.UtcNow);
 
-            var purchasedMovie = new PurchasedMovie
-            {
-                MovieId = movie.Id,
-                CustomerId = Id,
-                PurchaseDate = now,
-                ExpirationDate = expirationDate,
-                Price = price
-            };
-
+            var purchasedMovie = new PurchasedMovie(movie.Id, Id, price, now, expirationDate);
             _purchasedMovies.Add(purchasedMovie);
+            
             MoneySpent += purchasedMovie.Price;
         }
 
