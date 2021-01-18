@@ -12,7 +12,7 @@ namespace Domain
             _movieService = movieService;
         }
 
-        private Dollars CalculatePrice(CustomerStatus status, DateTime? statusExpirationDate, LicensingModel licensingModel)
+        private Dollars CalculatePrice(CustomerStatus status, ExpirationDate statusExpirationDate, LicensingModel licensingModel)
         {
             Dollars price = licensingModel switch
             {
@@ -20,7 +20,7 @@ namespace Domain
                 LicensingModel.LifeLong => Dollars.Of(8),
                 _ => throw new ArgumentOutOfRangeException()
             };
-            if (status == CustomerStatus.Advanced && (statusExpirationDate == null || statusExpirationDate.Value >= DateTime.UtcNow))
+            if (status == CustomerStatus.Advanced && statusExpirationDate.IsExpired(DateTime.UtcNow) == false)
             {
                 price = price * 0.75m;
             }
@@ -30,14 +30,14 @@ namespace Domain
 
         public void PurchaseMovie(Customer customer, Movie movie)
         {
-            DateTime? expirationDate = _movieService.GetExpirationDate(movie.LicensingModel);
+            ExpirationDate expirationDate = _movieService.GetExpirationDate(movie.LicensingModel);
             Dollars price = CalculatePrice(customer.Status, customer.StatusExpirationDate, movie.LicensingModel);
 
             var purchasedMovie = new PurchasedMovie
             {
                 MovieId = movie.Id,
                 CustomerId = customer.Id,
-                PurchaseDate = DateTime.Now,
+                PurchaseDate = DateTime.UtcNow,
                 ExpirationDate = expirationDate,
                 Price = price
             };
@@ -49,7 +49,8 @@ namespace Domain
         public bool PromoteCustomer(Customer customer)
         {
             // at least 2 active movies during the last 30 days
-            if (customer.PurchasedMovies.Count(x => x.ExpirationDate == null || x.ExpirationDate.Value >= DateTime.UtcNow.AddDays(-30)) < 2)
+            if (customer.PurchasedMovies.Count(
+                x => x.ExpirationDate == ExpirationDate.Infinite || x.ExpirationDate.Date >= DateTime.UtcNow.AddDays(-30)) < 2)
                 return false;
 
             // at least 100 dollars spent during the last year
@@ -57,7 +58,7 @@ namespace Domain
                 return false;
 
             customer.Status = CustomerStatus.Advanced;
-            customer.StatusExpirationDate = DateTime.UtcNow.AddYears(1);
+            customer.StatusExpirationDate = ExpirationDate.Create(DateTime.UtcNow.AddYears(1)).Value;
 
             return true;
         }

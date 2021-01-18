@@ -8,6 +8,6 @@ namespace Domain
         public long CustomerId { get; set; }
         public Dollars Price { get; set; }
         public DateTime PurchaseDate { get; set; }
-        public DateTime? ExpirationDate { get; set; }
+        public ExpirationDate ExpirationDate { get; set; }
     }
 }

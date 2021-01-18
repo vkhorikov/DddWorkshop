@@ -69,7 +69,7 @@ namespace App
                     new PurchasedMovie
                     {
                         CustomerId = 1,
-                        ExpirationDate = DateTime.Now.AddDays(2),
+                        ExpirationDate = ExpirationDate.Create(DateTime.UtcNow.AddDays(2)).Value,
                         MovieId = 1,
                         Price = Dollars.Of(4),
                         PurchaseDate = DateTime.Now

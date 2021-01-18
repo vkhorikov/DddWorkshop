@@ -4,12 +4,12 @@ namespace Domain
 {
     public class MovieService
     {
-        public DateTime? GetExpirationDate(LicensingModel licensingModel)
+        public ExpirationDate GetExpirationDate(LicensingModel licensingModel)
         {
-            DateTime? result = licensingModel switch
+            ExpirationDate result = licensingModel switch
             {
-                LicensingModel.TwoDays => DateTime.UtcNow.AddDays(2),
-                LicensingModel.LifeLong => null,
+                LicensingModel.TwoDays => ExpirationDate.Create(DateTime.UtcNow.AddDays(2)).Value,
+                LicensingModel.LifeLong => ExpirationDate.Infinite,
                 _ => throw new ArgumentOutOfRangeException()
             };
 

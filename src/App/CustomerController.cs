@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using App.DataContracts;
 using CSharpFunctionalExtensions;
 using Domain;
@@ -39,11 +40,11 @@ namespace App
                 Email = customer.Email.Value,
                 MoneySpent = customer.MoneySpent.Value,
                 Status = customer.Status.ToString(),
-                StatusExpirationDate = customer.StatusExpirationDate,
+                StatusExpirationDate = customer.StatusExpirationDate.Date,
                 PurchasedMovies = customer.PurchasedMovies.Select(x => new PurchasedMovieDto
                 {
                     Price = x.Price.Value,
-                    ExpirationDate = x.ExpirationDate,
+                    ExpirationDate = x.ExpirationDate.Date,
                     PurchaseDate = x.PurchaseDate,
                     Movie = new MovieDto
                     {
@@ -120,8 +121,7 @@ namespace App
                 return BadRequest("Invalid customer id: " + id);
             }
 
-            if (customer.PurchasedMovies.Any(
-                x => x.MovieId == movie.Id && (x.ExpirationDate == null || x.ExpirationDate.Value >= DateTime.UtcNow)))
+            if (customer.PurchasedMovies.Any(x => x.MovieId == movie.Id && x.ExpirationDate.IsExpired(DateTime.UtcNow) == false))
             {
                 return BadRequest("The movie is already purchased: " + movie.Name);
             }
@@ -143,8 +143,7 @@ namespace App
                 return BadRequest("Invalid customer id: " + id);
             }
 
-            if (customer.Status == CustomerStatus.Advanced &&
-                (customer.StatusExpirationDate == null || customer.StatusExpirationDate.Value < DateTime.UtcNow))
+            if (customer.Status == CustomerStatus.Advanced && customer.StatusExpirationDate.IsExpired(DateTime.UtcNow) == false)
             {
                 return BadRequest("The customer already has the Advanced status");
             }
