@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CSharpFunctionalExtensions;
 
 namespace Domain
 {
@@ -22,31 +23,46 @@ namespace Domain
             Status = CustomerStatus.Regular;
         }
 
+        public bool HasPurchasedMovie(Movie movie, DateTime now)
+        {
+            return PurchasedMovies.Any(x => x.MovieId == movie.Id && x.ExpirationDate.IsExpired(now) == false);
+        }
+
         public void PurchaseMovie(Movie movie, DateTime now)
         {
+            if (HasPurchasedMovie(movie, now))
+                throw new Exception();
+
             ExpirationDate expirationDate = movie.GetExpirationDate();
             Dollars price = movie.CalculatePrice(Status, DateTime.UtcNow);
 
             var purchasedMovie = new PurchasedMovie(movie.Id, Id, price, now, expirationDate);
             _purchasedMovies.Add(purchasedMovie);
             
-            MoneySpent += purchasedMovie.Price;
+            MoneySpent += price;
         }
 
-        public bool Promote(DateTime now)
+        public Result CanPromote(DateTime now)
         {
-            // at least 2 active movies during the last 30 days
+            if (Status.IsAdvanced(DateTime.UtcNow))
+                return Result.Failure("The customer already has the Advanced status");
+
             if (PurchasedMovies.Count(
                 x => x.ExpirationDate == ExpirationDate.Infinite || x.ExpirationDate.Date >= now.AddDays(-30)) < 2)
-                return false;
+                return Result.Failure("The customer has to have at least 2 active movies during the last 30 days");
 
-            // at least 100 dollars spent during the last year
             if (PurchasedMovies.Where(x => x.PurchaseDate > now.AddYears(-1)).Sum(x => x.Price.Value) < 100m)
-                return false;
+                return Result.Failure("The customer has to have at least 100 dollars spent during the last year");
+
+            return Result.Success();
+        }
+
+        public void Promote(DateTime now)
+        {
+            if (CanPromote(now).IsFailure)
+                throw new Exception();
 
             Status = Status.Promote();
-
-            return true;
         }
     }
 }

@@ -100,7 +100,7 @@ namespace App
             if (customer == null)
                 return Error("Invalid customer id: " + id);
 
-            if (customer.PurchasedMovies.Any(x => x.MovieId == movie.Id && x.ExpirationDate.IsExpired(DateTime.UtcNow) == false))
+            if (customer.HasPurchasedMovie(movie, DateTime.UtcNow))
                 return Error("The movie is already purchased: " + movie.Name);
 
             customer.PurchaseMovie(movie, DateTime.UtcNow);
@@ -118,12 +118,11 @@ namespace App
             if (customer == null)
                 return Error("Invalid customer id: " + id);
 
-            if (customer.Status.IsAdvanced(DateTime.UtcNow))
-                return Error("The customer already has the Advanced status");
+            Result promotionCheck = customer.CanPromote(DateTime.UtcNow);
+            if (promotionCheck.IsFailure)
+                return Error(promotionCheck.Error);
 
-            bool success = customer.Promote(DateTime.UtcNow);
-            if (!success)
-                return Error("Cannot promote the customer");
+            customer.Promote(DateTime.UtcNow);
 
             _customerRepository.Save(customer);
 
