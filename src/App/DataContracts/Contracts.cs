@@ -31,19 +31,12 @@ namespace App.DataContracts
 
     public class CreateCustomerRequest
     {
-        [Required]
-        [MaxLength(100, ErrorMessage = "Name is too long")]
         public string Name { get; set; }
-
-        [Required]
-        [RegularExpression(@"^(.+)@(.+)$", ErrorMessage = "Email is invalid")]
         public string Email { get; set; }
     }
 
     public class UpdateCustomerRequest
     {
-        [Required]
-        [MaxLength(100, ErrorMessage = "Name is too long")]
         public string Name { get; set; }
     }
 }

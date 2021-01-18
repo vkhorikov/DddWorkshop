@@ -6,21 +6,12 @@ namespace Domain
     {
         public DateTime? GetExpirationDate(LicensingModel licensingModel)
         {
-            DateTime? result;
-
-            switch (licensingModel)
+            DateTime? result = licensingModel switch
             {
-                case LicensingModel.TwoDays:
-                    result = DateTime.UtcNow.AddDays(2);
-                    break;
-
-                case LicensingModel.LifeLong:
-                    result = null;
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+                LicensingModel.TwoDays => DateTime.UtcNow.AddDays(2),
+                LicensingModel.LifeLong => null,
+                _ => throw new ArgumentOutOfRangeException()
+            };
 
             return result;
         }

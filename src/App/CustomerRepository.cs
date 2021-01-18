@@ -21,7 +21,7 @@ namespace App
                 .ToList();
         }
 
-        public Customer GetByEmail(string email)
+        public Customer GetByEmail(Email email)
         {
             return _customers.SingleOrDefault(x => x.Email == email);
         }
@@ -61,9 +61,9 @@ namespace App
             var alice = new Customer
             {
                 Id = 1,
-                Email = "alice@gmail.com",
+                Email = Email.Create("alice@gmail.com").Value,
                 MoneySpent = 4,
-                Name = "Alice Alison",
+                Name = CustomerName.Create("Alice Alison").Value,
                 PurchasedMovies = new List<PurchasedMovie>
                 {
                     new PurchasedMovie
@@ -87,9 +87,9 @@ namespace App
             var bob = new Customer
             {
                 Id = 2,
-                Email = "bob@gmail.com",
+                Email = Email.Create("bob@gmail.com").Value,
                 MoneySpent = 0,
-                Name = "Bob Bobson",
+                Name = CustomerName.Create("Bob Bobson").Value,
                 PurchasedMovies = new List<PurchasedMovie>(),
                 Status = CustomerStatus.Regular,
                 StatusExpirationDate = null

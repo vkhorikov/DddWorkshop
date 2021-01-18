@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using App.DataContracts;
+using CSharpFunctionalExtensions;
 using Domain;
 using Microsoft.AspNetCore.Mvc;
 
@@ -34,8 +35,8 @@ namespace App
             var dto = new GetCustomerResponse
             {
                 Id = customer.Id,
-                Name = customer.Name,
-                Email = customer.Email,
+                Name = customer.Name.Value,
+                Email = customer.Email.Value,
                 MoneySpent = customer.MoneySpent,
                 Status = customer.Status.ToString(),
                 StatusExpirationDate = customer.StatusExpirationDate,
@@ -58,20 +59,22 @@ namespace App
         [HttpPost]
         public IActionResult Create([FromBody] CreateCustomerRequest request)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            Result<CustomerName> customerName = CustomerName.Create(request.Name);
+            Result<Email> email = Email.Create(request.Email);
 
-            if (_customerRepository.GetByEmail(request.Email) != null)
+            Result result = Result.Combine(customerName, email);
+            if (result.IsFailure)
+                return BadRequest(result.Error);
+
+            if (_customerRepository.GetByEmail(email.Value) != null)
             {
                 return BadRequest("Email is already in use: " + request.Email);
             }
 
             var customer = new Customer
             {
-                Name = request.Name,
-                Email = request.Email,
+                Name = customerName.Value,
+                Email = email.Value,
                 MoneySpent = 0,
                 Status = CustomerStatus.Regular,
                 StatusExpirationDate = null
@@ -85,18 +88,17 @@ namespace App
         [Route("{id}")]
         public IActionResult Update(long id, [FromBody] UpdateCustomerRequest request)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             Customer customer = _customerRepository.GetById(id);
             if (customer == null)
             {
                 return BadRequest("Invalid customer id: " + id);
             }
 
-            customer.Name = request.Name;
+            Result<CustomerName> customerName = CustomerName.Create(request.Name);
+            if (customerName.IsFailure)
+                return BadRequest(customerName.Error);
+
+            customer.Name = customerName.Value;
             _customerRepository.Save(customer);
 
             return Ok();
