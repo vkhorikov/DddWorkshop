@@ -1,0 +1,10 @@
+﻿[*.{cs,vb}]
+
+# IDE0054: Use compound assignment
+dotnet_diagnostic.IDE0054.severity = none
+
+# Default severity for analyzer diagnostics with category 'Performance'
+dotnet_analyzer_diagnostic.category-Performance.severity = none
+
+# Default severity for analyzer diagnostics with category 'Usage'
+dotnet_analyzer_diagnostic.category-Usage.severity = none
