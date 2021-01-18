@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
+using App.DataContracts;
 using Domain;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,35 +29,61 @@ namespace App
         {
             Customer customer = _customerRepository.GetById(id);
             if (customer == null)
-            {
                 return BadRequest("Invalid customer id: " + id);
-            }
 
-            return Json(customer);
+            var dto = new GetCustomerResponse
+            {
+                Id = customer.Id,
+                Name = customer.Name,
+                Email = customer.Email,
+                MoneySpent = customer.MoneySpent,
+                Status = customer.Status.ToString(),
+                StatusExpirationDate = customer.StatusExpirationDate,
+                PurchasedMovies = customer.PurchasedMovies.Select(x => new PurchasedMovieDto
+                {
+                    Price = x.Price,
+                    ExpirationDate = x.ExpirationDate,
+                    PurchaseDate = x.PurchaseDate,
+                    Movie = new MovieDto
+                    {
+                        Id = x.MovieId,
+                        Name = _movieRepository.GetById(x.MovieId).Name
+                    }
+                }).ToList()
+            };
+
+            return Json(dto);
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] Customer item)
+        public IActionResult Create([FromBody] CreateCustomerRequest request)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            if (_customerRepository.GetByEmail(item.Email) != null)
+            if (_customerRepository.GetByEmail(request.Email) != null)
             {
-                return BadRequest("Email is already in use: " + item.Email);
+                return BadRequest("Email is already in use: " + request.Email);
             }
 
-            item.Status = CustomerStatus.Regular;
-            _customerRepository.Save(item);
+            var customer = new Customer
+            {
+                Name = request.Name,
+                Email = request.Email,
+                MoneySpent = 0,
+                Status = CustomerStatus.Regular,
+                StatusExpirationDate = null
+            };
+            _customerRepository.Save(customer);
 
             return Ok();
         }
 
         [HttpPut]
         [Route("{id}")]
-        public IActionResult Update(long id, [FromBody] Customer item)
+        public IActionResult Update(long id, [FromBody] UpdateCustomerRequest request)
         {
             if (!ModelState.IsValid)
             {
@@ -70,7 +96,7 @@ namespace App
                 return BadRequest("Invalid customer id: " + id);
             }
 
-            customer.Name = item.Name;
+            customer.Name = request.Name;
             _customerRepository.Save(customer);
 
             return Ok();
@@ -92,7 +118,8 @@ namespace App
                 return BadRequest("Invalid customer id: " + id);
             }
 
-            if (customer.PurchasedMovies.Any(x => x.MovieId == movie.Id && (x.ExpirationDate == null || x.ExpirationDate.Value >= DateTime.UtcNow)))
+            if (customer.PurchasedMovies.Any(
+                x => x.MovieId == movie.Id && (x.ExpirationDate == null || x.ExpirationDate.Value >= DateTime.UtcNow)))
             {
                 return BadRequest("The movie is already purchased: " + movie.Name);
             }
@@ -114,7 +141,8 @@ namespace App
                 return BadRequest("Invalid customer id: " + id);
             }
 
-            if (customer.Status == CustomerStatus.Advanced && (customer.StatusExpirationDate == null || customer.StatusExpirationDate.Value < DateTime.UtcNow))
+            if (customer.Status == CustomerStatus.Advanced &&
+                (customer.StatusExpirationDate == null || customer.StatusExpirationDate.Value < DateTime.UtcNow))
             {
                 return BadRequest("The customer already has the Advanced status");
             }
