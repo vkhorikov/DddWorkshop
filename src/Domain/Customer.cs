@@ -9,7 +9,6 @@ namespace Domain
         public CustomerName Name { get; set; }
         public Email Email { get; set; }
         public CustomerStatus Status { get; set; }
-        public ExpirationDate StatusExpirationDate { get; set; }
         public Dollars MoneySpent { get; set; }
 
         private readonly IList<PurchasedMovie> _purchasedMovies = new List<PurchasedMovie>();
@@ -21,7 +20,6 @@ namespace Domain
             Email = email;
             MoneySpent = Dollars.Of(0);
             Status = CustomerStatus.Regular;
-            StatusExpirationDate = ExpirationDate.Infinite;
         }
 
         public void PurchaseMovie(Movie movie, ExpirationDate expirationDate, Dollars price, DateTime now)
