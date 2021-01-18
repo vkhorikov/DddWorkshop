@@ -12,13 +12,13 @@ namespace Domain
             _movieService = movieService;
         }
 
-        private decimal CalculatePrice(CustomerStatus status, DateTime? statusExpirationDate, LicensingModel licensingModel)
+        private Dollars CalculatePrice(CustomerStatus status, DateTime? statusExpirationDate, LicensingModel licensingModel)
         {
-            decimal price = licensingModel switch
+            Dollars price = licensingModel switch
             {
-                LicensingModel.TwoDays => 4,
-                LicensingModel.LifeLong => 8,
-                _ => throw new ArgumentOutOfRangeException(),
+                LicensingModel.TwoDays => Dollars.Of(4),
+                LicensingModel.LifeLong => Dollars.Of(8),
+                _ => throw new ArgumentOutOfRangeException()
             };
             if (status == CustomerStatus.Advanced && (statusExpirationDate == null || statusExpirationDate.Value >= DateTime.UtcNow))
             {
@@ -31,12 +31,13 @@ namespace Domain
         public void PurchaseMovie(Customer customer, Movie movie)
         {
             DateTime? expirationDate = _movieService.GetExpirationDate(movie.LicensingModel);
-            decimal price = CalculatePrice(customer.Status, customer.StatusExpirationDate, movie.LicensingModel);
+            Dollars price = CalculatePrice(customer.Status, customer.StatusExpirationDate, movie.LicensingModel);
 
             var purchasedMovie = new PurchasedMovie
             {
                 MovieId = movie.Id,
                 CustomerId = customer.Id,
+                PurchaseDate = DateTime.Now,
                 ExpirationDate = expirationDate,
                 Price = price
             };
@@ -52,7 +53,7 @@ namespace Domain
                 return false;
 
             // at least 100 dollars spent during the last year
-            if (customer.PurchasedMovies.Where(x => x.PurchaseDate > DateTime.UtcNow.AddYears(-1)).Sum(x => x.Price) < 100m)
+            if (customer.PurchasedMovies.Where(x => x.PurchaseDate > DateTime.UtcNow.AddYears(-1)).Sum(x => x.Price.Value) < 100m)
                 return false;
 
             customer.Status = CustomerStatus.Advanced;

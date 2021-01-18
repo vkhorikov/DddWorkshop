@@ -62,7 +62,7 @@ namespace App
             {
                 Id = 1,
                 Email = Email.Create("alice@gmail.com").Value,
-                MoneySpent = 4,
+                MoneySpent = Dollars.Of(4),
                 Name = CustomerName.Create("Alice Alison").Value,
                 PurchasedMovies = new List<PurchasedMovie>
                 {
@@ -71,7 +71,7 @@ namespace App
                         CustomerId = 1,
                         ExpirationDate = DateTime.Now.AddDays(2),
                         MovieId = 1,
-                        Price = 4,
+                        Price = Dollars.Of(4),
                         PurchaseDate = DateTime.Now
                     }
                 },
@@ -88,7 +88,7 @@ namespace App
             {
                 Id = 2,
                 Email = Email.Create("bob@gmail.com").Value,
-                MoneySpent = 0,
+                MoneySpent = Dollars.Of(0),
                 Name = CustomerName.Create("Bob Bobson").Value,
                 PurchasedMovies = new List<PurchasedMovie>(),
                 Status = CustomerStatus.Regular,

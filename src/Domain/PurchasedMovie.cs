@@ -6,7 +6,7 @@ namespace Domain
     {
         public long MovieId { get; set; }
         public long CustomerId { get; set; }
-        public decimal Price { get; set; }
+        public Dollars Price { get; set; }
         public DateTime PurchaseDate { get; set; }
         public DateTime? ExpirationDate { get; set; }
     }

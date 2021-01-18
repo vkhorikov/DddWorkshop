@@ -37,12 +37,12 @@ namespace App
                 Id = customer.Id,
                 Name = customer.Name.Value,
                 Email = customer.Email.Value,
-                MoneySpent = customer.MoneySpent,
+                MoneySpent = customer.MoneySpent.Value,
                 Status = customer.Status.ToString(),
                 StatusExpirationDate = customer.StatusExpirationDate,
                 PurchasedMovies = customer.PurchasedMovies.Select(x => new PurchasedMovieDto
                 {
-                    Price = x.Price,
+                    Price = x.Price.Value,
                     ExpirationDate = x.ExpirationDate,
                     PurchaseDate = x.PurchaseDate,
                     Movie = new MovieDto
@@ -75,7 +75,7 @@ namespace App
             {
                 Name = customerName.Value,
                 Email = email.Value,
-                MoneySpent = 0,
+                MoneySpent = Dollars.Of(0),
                 Status = CustomerStatus.Regular,
                 StatusExpirationDate = null
             };

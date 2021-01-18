@@ -9,7 +9,7 @@ namespace Domain
         public Email Email { get; set; }
         public CustomerStatus Status { get; set; }
         public DateTime? StatusExpirationDate { get; set; }
-        public decimal MoneySpent { get; set; }
+        public Dollars MoneySpent { get; set; }
         public IList<PurchasedMovie> PurchasedMovies { get; set; }
     }
 }
