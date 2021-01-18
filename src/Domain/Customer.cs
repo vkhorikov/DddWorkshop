@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -23,8 +24,17 @@ namespace Domain
             StatusExpirationDate = ExpirationDate.Infinite;
         }
 
-        public void PurchaseMovie(PurchasedMovie purchasedMovie)
+        public void PurchaseMovie(Movie movie, ExpirationDate expirationDate, Dollars price, DateTime now)
         {
+            var purchasedMovie = new PurchasedMovie
+            {
+                MovieId = movie.Id,
+                CustomerId = Id,
+                PurchaseDate = now,
+                ExpirationDate = expirationDate,
+                Price = price
+            };
+
             _purchasedMovies.Add(purchasedMovie);
             MoneySpent += purchasedMovie.Price;
         }

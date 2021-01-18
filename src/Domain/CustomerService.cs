@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Domain
@@ -33,17 +32,7 @@ namespace Domain
         {
             ExpirationDate expirationDate = _movieService.GetExpirationDate(movie.LicensingModel);
             Dollars price = CalculatePrice(customer.Status, customer.StatusExpirationDate, movie.LicensingModel);
-
-            var purchasedMovie = new PurchasedMovie
-            {
-                MovieId = movie.Id,
-                CustomerId = customer.Id,
-                PurchaseDate = DateTime.UtcNow,
-                ExpirationDate = expirationDate,
-                Price = price
-            };
-
-            customer.PurchaseMovie(purchasedMovie);
+            customer.PurchaseMovie(movie, expirationDate, price, DateTime.UtcNow);
         }
 
         public bool PromoteCustomer(Customer customer)
